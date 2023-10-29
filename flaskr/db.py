@@ -1,11 +1,12 @@
 import sqlite3
-import hashlib  # Use a stronger hashing method in production
+import hashlib
+from flask import g
 
 DATABASE = 'your_database.db'
 
-def get_db():
-    db = sqlite3.connect(DATABASE)
-    return db
+
+def connect_db():
+    return sqlite3.connect(DATABASE)
 
 
 def init_db():
@@ -15,35 +16,19 @@ def init_db():
         db.commit()
 
 
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = connect_db()
+    return db
+
+
 def close_db():
-    db = get_db()
-    db.close()
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 
-def register_user(username, password):
-    db = get_db()
-    password = hashlib.md5(password.encode()).hexdigest()  # Use a stronger hashing method in production
-    db.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-    db.commit()
-
-
-def get_user_by_id(user_id):
-    db = get_db()
-    cursor = db.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-    user = cursor.fetchone()
-    return user
-
-
-def get_user_by_username(username):
-    db = get_db()
-    cursor = db.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = cursor.fetchone()
-    return user
-
-
-def create_poll(title, options, admin_id):
-    db = get_db()
-    db.execute("INSERT INTO polls (title, options, admin_id) VALUES (?, ?, ?)", (title, options, admin_id))
-    db.commit()
-
-# Add more database functions for your specific application needs
+def hash_password(password):
+    # Use a stronger password hashing method in a production environment
+    return hashlib.md5(password.encode()).hexdigest()

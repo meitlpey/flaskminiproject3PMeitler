@@ -1,0 +1,55 @@
+/* Custom styles for your Flask project */
+
+/* Body styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+/* Header styles */
+header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 15px;
+    text-align: center;
+}
+
+/* Navigation bar styles */
+.navbar {
+    background-color: #007bff;
+}
+
+/* Main content styles */
+.container {
+    background-color: #bebebe;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Button styles */
+.btn {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Error message styles */
+.error-message {
+    color: #dc3545;
+}
+
+/* Success message styles */
+.success-message {
+    color: #28a745;
+}
