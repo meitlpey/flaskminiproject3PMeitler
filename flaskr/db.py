@@ -1,16 +1,9 @@
-# db.py
-
 import sqlite3
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
-from auth import hash_password
-
-# Import the hash_password function from the auth module
-
 
 def init_db():
-    """Initialize the database."""
     db = get_db()
 
     with current_app.open_resource('schema.sql') as f:
@@ -37,7 +30,6 @@ def init_app(app):
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Clear the existing data and create new tables."""
     init_db()
     click.echo('Initialized the database.')
 
