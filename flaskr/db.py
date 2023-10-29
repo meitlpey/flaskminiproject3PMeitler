@@ -1,34 +1,46 @@
+# db.py
+
 import sqlite3
-import hashlib
-from flask import g
+import click
+from flask import current_app, g
+from flask.cli import with_appcontext
+from auth import hash_password
 
-DATABASE = 'your_database.db'
-
-
-def connect_db():
-    return sqlite3.connect(DATABASE)
+# Import the hash_password function from the auth module
 
 
 def init_db():
-    with open('schema.sql', 'r') as f:
-        db = get_db()
-        db.executescript(f.read())
-        db.commit()
+    """Initialize the database."""
+    db = get_db()
 
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))
 
 def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = connect_db()
-    return db
+    if 'db' not in g:
+        g.db = sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+        )
+        g.db.row_factory = sqlite3.Row
+    return g.db
 
-
-def close_db():
-    db = getattr(g, '_database', None)
+def close_db(e=None):
+    db = g.pop('db', None)
     if db is not None:
         db.close()
 
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
 
-def hash_password(password):
-    # Use a stronger password hashing method in a production environment
-    return hashlib.md5(password.encode()).hexdigest()
+@click.command('init-db')
+@with_appcontext
+def init_db_command():
+    """Clear the existing data and create new tables."""
+    init_db()
+    click.echo('Initialized the database.')
+
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
